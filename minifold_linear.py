@@ -167,7 +167,7 @@ def predict_protein_structure(protein_seq, trained_model, window_size=13, alphab
 
 if __name__ == '__main__':
     # Configuration
-    FILE_PATH = 'NAME_OF_YOUR_FILE.txt' # <-- REPLACE WITH YOUR ACTUAL FILE NAME
+    FILE_PATH = 'RS126.data.txt' # <-- REPLACE WITH YOUR ACTUAL FILE NAME
     WINDOW_SIZE = 13
     ALPHABET = "ACDEFGHIKLMNPQRSTVWYX"
     
