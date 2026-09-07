@@ -114,6 +114,15 @@ class MiniFoldCNN(nn.Module):
 2. **Translation Invariance**: Structural motifs are detected regardless of their exact position within the sliding window.
 3. **Parameter Efficiency**: Filter weights are shared across spatial positions, preventing parameter explosion while improving generalization over raw linear projections.
 
+### 📊 Inference Test Results (CNN)
+```text
+--- CNN INFERENCE TEST RESULTS ---
+Input Sequence:   FVNQHLCGSHLVEALYLVCGERGFFYTPKA
+Expected Ground:  CCCCCCCCHHHHHHHHHHHHHHCECCCCCC
+CNN Prediction:   CCEEEECHHHHHHEEEEEECCCCCCCCCCC
+Accuracy:         50.0% (15/30 correct amino acids)
+```
+
 ---
 
 ## 🤖 2. Baseline Model: Linear Layer Network (`MiniFoldFFNN`)
@@ -155,6 +164,14 @@ class MiniFoldFFNN(nn.Module):
         out = self.dropout(out)
         out = self.fc2(out)
         return out
+```
+
+### 📊 Inference Test Results (Linear Baseline)
+```text
+Input:    FVNQHLCGSHLVEALYLVCGERGFFYTPKA
+Expected: CCCCCCCCHHHHHHHHHHHHHHCECCCCCC
+Predicted:CEEEECCCCEECHEEEEEHCCCCEEECCCC
+Accuracy: 40.0% (12/30 correct amino acids)
 ```
 
 ---
