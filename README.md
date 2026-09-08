@@ -8,12 +8,12 @@ An AI/Deep Learning repository for predicting secondary protein structures (**Co
 
 Below is a comparison of all model implementation iterations developed in this repository:
 
-| Implementation Model | Architecture | Feature Pipeline | Accuracy | Code & Notebook Reference |
-| :--- | :--- | :--- | :---: | :--- |
-| **1. Multi_CNN** *(Advanced)* | 1D Conv + Dynamic Blocks | `nn.Embedding` (21 → 32) → `Conv1d` (32 → 128) → `LearningBlock` Stack $\times N$ | **77.78%** | [`minifold_CNN.py`](file:///c:/Users/mannu/2D%20Protien%20Folding/minifold_CNN.py)<br>[`Minifold_MultiLayerCNN.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_MultiLayerCNN.ipynb) |
-| **2. CNN** *(Baseline)* | 2-Layer 1D Convolutional | 3D One-Hot Grid (21 × 13) → `Conv1d` (64 → 32) → `Linear` | **50.0%** | [`Minifold_baselineCNN.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_baselineCNN.ipynb) |
-| **3. Linear** *(Baseline)* | Feed-Forward Neural Net | Flattened One-Hot Vector (273) → `Linear` (273 → 128 → 3) | **40.0%** | [`minifold_linear.py`](file:///c:/Users/mannu/2D%20Protien%20Folding/minifold_linear.py)<br>[`Minifold_Linear.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_Linear.ipynb) |
-| **4. Transformers** *(Roadmap)* | Multi-Head Self-Attention | Token + Positional Embeddings + Self-Attention Encoder | *Planned* | *Future Work* |
+| Implementation Model | Model Architecture | Feature Pipeline | Accuracy | Code & Notebook Reference |
+| :--- | :---: | :--- | :---: | :--- |
+| **1. Multi_CNN**<br>*(Advanced)* | <img src="images/multi_cnn_architecture.png" width="320" alt="Multi-Layer CNN Architecture"> | `nn.Embedding` (21 → 32) → `Conv1d` (32 → 128) → `LearningBlock` Stack $\times N$ | **77.78%** | [`minifold_CNN.py`](file:///c:/Users/mannu/2D%20Protien%20Folding/minifold_CNN.py)<br>[`Minifold_MultiLayerCNN.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_MultiLayerCNN.ipynb) |
+| **2. CNN**<br>*(Baseline)* | 2-Layer 1D Conv1D | 3D One-Hot Grid (21 × 13) → `Conv1d` (64 → 32) → `Linear` | **50.0%** | [`Minifold_baselineCNN.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_baselineCNN.ipynb) |
+| **3. Linear**<br>*(Baseline)* | <img src="images/linear_architecture.png" width="320" alt="Baseline Linear Model Architecture"> | Flattened One-Hot Vector (273) → `Linear` (273 → 128 → 3) | **40.0%** | [`minifold_linear.py`](file:///c:/Users/mannu/2D%20Protien%20Folding/minifold_linear.py)<br>[`Minifold_Linear.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_Linear.ipynb) |
+| **4. Transformers**<br>*(Roadmap)* | Self-Attention Encoder | Token + Positional Embeddings + Multi-Head Attention | *Planned* | *Future Work* |
 
 ---
 
@@ -68,8 +68,6 @@ We slice sequences using a **sliding window of size W = 13**:
 > Implemented in [`minifold_CNN.py`](file:///c:/Users/mannu/2D%20Protien%20Folding/minifold_CNN.py) and [`Minifold_MultiLayerCNN.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_MultiLayerCNN.ipynb). This model introduces dense feature embeddings, 1D spatial feature extraction, projection bridges, and configurable, modular `LearningBlock` stacks.
 
 ### Model Architecture
-
-![Multi-Layer CNN Architecture](images/multi_cnn_architecture.png)
 
 ```python
 class LearningBlock(nn.Module):
@@ -194,8 +192,6 @@ Accuracy:         50.0% (15/30 correct amino acids)
 > Implemented in [`minifold_linear.py`](file:///c:/Users/mannu/2D%20Protien%20Folding/minifold_linear.py) and [`Minifold_Linear.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_Linear.ipynb). Uses a flattened 1D one-hot vector representation (`13 * 21 = 273`) passed into dense linear layers.
 
 ### Model Architecture
-
-![Baseline Linear Model Architecture](images/linear_architecture.png)
 
 ```python
 class MiniFoldFFNN(nn.Module):
