@@ -6,13 +6,13 @@ An AI/Deep Learning repository for predicting secondary protein structures (**Co
 
 ## 📊 Model Implementation Comparison Summary
 
-Below is a comparison of all model implementation iterations developed in this repository, featuring their architecture code and actual inference test outputs:
+Below is a comparison of all model implementation iterations developed in this repository, showing how the layer structures and visual architectures evolve across models alongside their benchmark test performance:
 
-| Implementation Model | Model Architecture Code | Benchmark Inference Test Output |
+| Implementation Model | Layer Structure & Architecture Diagram | Benchmark Inference Test Output |
 | :--- | :---: | :--- |
-| **1. Multi_CNN**<br>*(Improved Multi-Layer)* | <img src="images/multi_cnn_code.png" width="420" alt="Improved Multi-Layer CNN Code"> | <code>Input:    FVNQHLCGSHLVEALYLVCGERGFFYTPKA</code><br><code>Expected: CCCCCCCCHHHHHHHHHHHHHHCECCCCCC</code><br><code>Pred:     CCECHCCCHHHEEHHHCCHHHHCECCCCCH</code><br><code>Accuracy: 77.78% (23/30 correct amino acids) </code> |
-| **2. CNN**<br>*(Baseline 2-Layer)* | <img src="images/baseline_cnn_code.png" width="420" alt="Baseline CNN Code"> | <code>Input:    FVNQHLCGSHLVEALYLVCGERGFFYTPKA</code><br><code>Expected: CCCCCCCCHHHHHHHHHHHHHHCECCCCCC</code><br><code>Pred:     CCEEEECHHHHHHEEEEEECCCCCCCCCCC</code><br><code>Accuracy: 50.0% (15/30 correct amino acids)</code> |
-| **3. Linear**<br>*(Baseline FFNN)* | <img src="images/linear_code.png" width="420" alt="Linear Model Code"> | <code>Input:    FVNQHLCGSHLVEALYLVCGERGFFYTPKA</code><br><code>Expected: CCCCCCCCHHHHHHHHHHHHHHCECCCCCC</code><br><code>Predicted:CEEEECCCCEECHEEEEEHCCCCEEECCCC</code><br><code>Accuracy: 40.0% (12/30 correct amino acids)</code> |
+| **1. Multi_CNN**<br>*(Improved Multi-Layer)* | <img src="images/multi_cnn_diagram.png" width="380" alt="Improved Multi-Layer CNN Architecture Diagram"> | <code>Input:    FVNQHLCGSHLVEALYLVCGERGFFYTPKA</code><br><code>Expected: CCCCCCCCHHHHHHHHHHHHHHCECCCCCC</code><br><code>Pred:     CCECHCCCHHHEEHHHCCHHHHCECCCCCH</code><br><code>Accuracy: 77.78%</code> |
+| **2. CNN**<br>*(Baseline 2-Layer)* | <img src="images/baseline_cnn_diagram.png" width="380" alt="Baseline CNN Architecture Diagram"> | <code>Input:    FVNQHLCGSHLVEALYLVCGERGFFYTPKA</code><br><code>Expected: CCCCCCCCHHHHHHHHHHHHHHCECCCCCC</code><br><code>Pred:     CCEEEECHHHHHHEEEEEECCCCCCCCCCC</code><br><code>Accuracy: 50.0% (15/30 correct amino acids)</code> |
+| **3. Linear**<br>*(Baseline FFNN)* | <img src="images/linear_diagram.png" width="380" alt="Baseline Linear Model Architecture Diagram"> | <code>Input:    FVNQHLCGSHLVEALYLVCGERGFFYTPKA</code><br><code>Expected: CCCCCCCCHHHHHHHHHHHHHHCECCCCCC</code><br><code>Predicted:CEEEECCCCEECHEEEEEHCCCCEEECCCC</code><br><code>Accuracy: 40.0% (12/30 correct amino acids)</code> |
 | **4. Transformers**<br>*(Roadmap)* | *Planned Self-Attention Architecture* | <code>Status:   In Development / Planned Architecture</code><br><code>Target:   Self-Attention & Positional Embeddings</code><br><code>Accuracy: Roadmap Architecture</code> |
 
 ---
