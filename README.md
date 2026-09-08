@@ -6,14 +6,14 @@ An AI/Deep Learning repository for predicting secondary protein structures (**Co
 
 ## 📊 Model Implementation Comparison Summary
 
-Below is a comparison of all model implementation iterations developed in this repository:
+Below is a comparison of all model implementation iterations developed in this repository, featuring their architecture code and actual inference test outputs:
 
-| Implementation Model | Model Architecture | Feature Pipeline | Accuracy | Code & Notebook Reference |
-| :--- | :---: | :--- | :---: | :--- |
-| **1. Multi_CNN**<br>*(Advanced)* | <img src="images/multi_cnn_architecture.png" width="320" alt="Multi-Layer CNN Architecture"> | `nn.Embedding` (21 → 32) → `Conv1d` (32 → 128) → `LearningBlock` Stack $\times N$ | **77.78%** | [`minifold_CNN.py`](file:///c:/Users/mannu/2D%20Protien%20Folding/minifold_CNN.py)<br>[`Minifold_MultiLayerCNN.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_MultiLayerCNN.ipynb) |
-| **2. CNN**<br>*(Baseline)* | 2-Layer 1D Conv1D | 3D One-Hot Grid (21 × 13) → `Conv1d` (64 → 32) → `Linear` | **50.0%** | [`Minifold_baselineCNN.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_baselineCNN.ipynb) |
-| **3. Linear**<br>*(Baseline)* | <img src="images/linear_architecture.png" width="320" alt="Baseline Linear Model Architecture"> | Flattened One-Hot Vector (273) → `Linear` (273 → 128 → 3) | **40.0%** | [`minifold_linear.py`](file:///c:/Users/mannu/2D%20Protien%20Folding/minifold_linear.py)<br>[`Minifold_Linear.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_Linear.ipynb) |
-| **4. Transformers**<br>*(Roadmap)* | Self-Attention Encoder | Token + Positional Embeddings + Multi-Head Attention | *Planned* | *Future Work* |
+| Implementation Model | Model Architecture Code | Benchmark Inference Test Output |
+| :--- | :---: | :--- |
+| **1. Multi_CNN**<br>*(Improved Multi-Layer)* | <img src="images/multi_cnn_code.png" width="420" alt="Improved Multi-Layer CNN Code"> | <pre><code>Input:    SIPPEVKFNKPFVFLMIEQNTKSPLFMGKVVNPTQK<br>Expected: CCCCEEECCCCEEEEEEECCCCCEEEEEEECCCCCC<br>Pred:     CCECHCCCHHHEEHHHCCHHHHCECCCCCH<br>Accuracy: 77.78%</code></pre> |
+| **2. CNN**<br>*(Baseline 2-Layer)* | <img src="images/baseline_cnn_code.png" width="420" alt="Baseline CNN Code"> | <pre><code>Input:    FVNQHLCGSHLVEALYLVCGERGFFYTPKA<br>Expected: CCCCCCCCHHHHHHHHHHHHHHCECCCCCC<br>Pred:     CCEEEECHHHHHHEEEEEECCCCCCCCCCC<br>Accuracy: 50.0% (15/30 correct amino acids)</code></pre> |
+| **3. Linear**<br>*(Baseline FFNN)* | <img src="images/linear_code.png" width="420" alt="Linear Model Code"> | <pre><code>Input:    FVNQHLCGSHLVEALYLVCGERGFFYTPKA<br>Expected: CCCCCCCCHHHHHHHHHHHHHHCECCCCCC<br>Predicted:CEEEECCCCEECHEEEEEHCCCCEEECCCC<br>Accuracy: 40.0% (12/30 correct amino acids)</code></pre> |
+| **4. Transformers**<br>*(Roadmap)* | *Planned Self-Attention Architecture* | <pre><code>Status:   In Development / Planned Architecture<br>Target:   Self-Attention & Positional Embeddings<br>Accuracy: Roadmap Architecture</code></pre> |
 
 ---
 
