@@ -196,8 +196,8 @@ if __name__ == '__main__':
     trained_model = train_model(model, train_loader, num_epochs=10, lr=0.001)
     
     # Step 7: Run Inference Test
-    test_input = "FVNQHLCGSHLVEALYLVCGERGFFYTPKA"
-    expected_output = "CCCCCCCCHHHHHHHHHHHHHHCECCCCCC"
+    test_input = "SIPPEVKFNKPFVFLMIEQNTKSPLFMGKVVNPTQK"
+    expected_output = "CCCCEEECCCCEEEEEEECCCCCEEEEEEECCCCCC"
     
     prediction = predict_protein_structure(test_input, trained_model, window_size=WINDOW_SIZE, alphabet=ALPHABET)
     

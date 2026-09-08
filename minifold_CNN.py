@@ -3,12 +3,12 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader
 
-# ==========================================
+# =========================================================
 # 1. DATA PREPARATION FUNCTIONS
-# ==========================================
+# =========================================================
 
 def load_and_parse_data(file_path):
-    """Reads alternating lines of sequences and structures from the text file."""
+    """Reads alternating lines of sequences and structures from the raw text file."""
     print(f"Loading data from {file_path}...")
     with open(file_path, 'r') as file:
         lines = file.readlines()
@@ -29,13 +29,12 @@ def load_and_parse_data(file_path):
 
 
 def create_sliding_windows(sequences, structures, window_size=13, limit=50):
-    """Applies the sliding window and padding across protein sequences."""
+    """Applies the sliding window and edge padding across protein sequences."""
     print(f"Generating sliding windows (using first {limit} proteins)...")
     pad_length = window_size // 2
     X_data = []
     Y_data = []
     
-    # Process up to 'limit' proteins for fast prototyping (set limit=None for all)
     seq_subset = sequences[:limit] if limit else sequences
     struct_subset = structures[:limit] if limit else structures
     
@@ -49,82 +48,109 @@ def create_sliding_windows(sequences, structures, window_size=13, limit=50):
     return X_data, Y_data
 
 
-def prepare_cnn_tensors(X_data, Y_data, window_size=13, alphabet="ACDEFGHIKLMNPQRSTVWYX"):
+def prepare_embedding_tensors(X_data, Y_data, window_size=13, alphabet="ACDEFGHIKLMNPQRSTVWYX"):
     """
-    One-hot encodes X and reshapes into 3D format: [Batch, Channels, Length]
+    Converts 13-character string windows into 2D integer tensors [Total_Rows, 13] for nn.Embedding.
     Converts Y target letters (C, E, H) into integer labels (0, 1, 2).
     """
-    print("Formatting tensors for CNN (3D Grid)...")
-    char_to_idx = {char: i for i, char in enumerate(alphabet)}
-    vocab_size = len(alphabet) # 21
+    print("Formatting tensors for Embedding Layer (Integer Tokens)...")
+    char_to_index = {char: idx for idx, char in enumerate(alphabet)}
     
-    # 1. One-hot encode X into flat matrix: [Total_Rows, 13 * 21]
-    X_flat = torch.zeros(len(X_data), window_size * vocab_size)
+    # 1. Store raw integer IDs directly: Shape [Total_Rows, 13]
+    X_ints = torch.zeros(len(X_data), window_size, dtype=torch.long)
     for row_idx, window in enumerate(X_data):
         for char_idx, char in enumerate(window):
-            if char in char_to_idx:
-                col_idx = (char_idx * vocab_size) + char_to_idx[char]
-                X_flat[row_idx, col_idx] = 1.0
+            if char in char_to_index:
+                X_ints[row_idx, char_idx] = char_to_index[char]
                 
-    # 2. Reshape and Transpose to 3D: [Total_Rows, 21, 13]
-    X_cnn = X_flat.view(-1, window_size, vocab_size).transpose(1, 2)
-    
-    # 3. Convert Y to integer labels
+    # 2. Target labels (C, E, H -> 0, 1, 2)
     shape_mapping = {'C': 0, 'E': 1, 'H': 2}
     Y_ints = [shape_mapping[shape] for shape in Y_data]
     Y_tensor = torch.tensor(Y_ints, dtype=torch.long)
     
-    print(f"X_cnn shape: {X_cnn.shape}  [Batch, Channels, Length]")
+    print(f"X_ints shape: {X_ints.shape}  [Total_Rows, 13]")
     print(f"Y_tensor shape: {Y_tensor.shape}")
-    return X_cnn, Y_tensor
+    return X_ints, Y_tensor
 
 
-# ==========================================
-# 2. CNN MODEL ARCHITECTURE
-# ==========================================
+# =========================================================
+# 2. NEURAL NETWORK ARCHITECTURE
+# =========================================================
 
-class MiniFoldCNN(nn.Module):
-    def __init__(self, vocab_size=21, window_size=13, output_size=3):
-        super(MiniFoldCNN, self).__init__()
-        
-        # Conv Layer 1: Slides 3-char filter across sequence
-        self.conv1 = nn.Conv1d(in_channels=vocab_size, out_channels=64, kernel_size=3, padding=1)
+class LearningBlock(nn.Module):
+    """
+    A single reusable learning block consisting of:
+    Linear Layer (256 -> 256) -> BatchNorm1d -> ReLU -> Dropout
+    """
+    def __init__(self, input_channels=256, dropout_rate=0.3):
+        super(LearningBlock, self).__init__()
+        self.linear1 = nn.Linear(input_channels, input_channels)
+        self.batch_norm1 = nn.BatchNorm1d(input_channels)
         self.relu = nn.ReLU()
-        self.dropout = nn.Dropout(0.3)
-        
-        # Conv Layer 2: Deeper biological motif detection
-        self.conv2 = nn.Conv1d(in_channels=64, out_channels=32, kernel_size=3, padding=1)
-        
-        # Final Classification Layer: Flattened 3D grid -> 3 classes
-        self.fc = nn.Linear(32 * window_size, output_size)
-        
+        self.dropout = nn.Dropout(dropout_rate)
+    
     def forward(self, x):
-        # Input shape: [Batch, 21, 13]
-        x = self.conv1(x)
+        x = self.linear1(x)
+        x = self.batch_norm1(x)
         x = self.relu(x)
         x = self.dropout(x)
-        
-        x = self.conv2(x)
-        x = self.relu(x)
-        
-        # Flatten [Batch, 32, 13] -> [Batch, 416]
-        x = x.view(x.size(0), -1)
-        
-        # Final Logits -> [Batch, 3]
-        out = self.fc(x)
-        return out
+        return x
 
 
-# ==========================================
+class MiniFoldCNN(nn.Module):
+    """
+    Timeline:
+    Integer Tokens -> Embedding Layer -> Conv1D Feature Extractor -> 
+    Bridge Layer (1664 -> 256) -> Dynamic LearningBlocks (SequenceCount) -> Linear Classifier (256 -> 3)
+    """
+    def __init__(self, vocab_size=21, input_channels=32, window_size=13, output_size=3, SequenceCount=2, hidden_dim=256):
+        super(MiniFoldCNN, self).__init__()
+        
+        # 1. Embedding Layer
+        self.embedding = nn.Embedding(num_embeddings=vocab_size, embedding_dim=input_channels)
+        
+        # Dimensions
+        conv_out_channels = 128
+        flattened_dim = conv_out_channels * window_size  # 128 * 13 = 1,664
+        
+        # 2. Sequential Pipeline
+        self.layers = nn.Sequential(
+            # Feature Extractor (Conv1D)
+            nn.Conv1d(in_channels=input_channels, out_channels=conv_out_channels, kernel_size=3, padding=1),
+            nn.ReLU(),
+            
+            # Bridge 3D Conv grid -> 2D Flat vector [Batch, 1664]
+            nn.Flatten(),
+            
+            # Projection Bridge: Shrink from 1,664 down to 256 for the LearningBlocks
+            nn.Linear(flattened_dim, hidden_dim),
+            nn.ReLU(),
+            
+            # Stacking your LearningBlocks dynamically! (256 -> 256)
+            *[LearningBlock(input_channels=hidden_dim, dropout_rate=0.3) for _ in range(SequenceCount)],
+            
+            # Final Classification Head (256 -> 3 classes: C, E, H)
+            nn.Linear(hidden_dim, output_size)
+        )
+
+    def forward(self, x):
+        # x shape entering: [Batch, 13] (raw integers)
+        x = self.embedding(x)       # -> [Batch, 13, 32]
+        x = x.transpose(1, 2)       # -> [Batch, 32, 13] (Batch, Channels, Length)
+        x = self.layers(x)          # -> [Batch, 3]
+        return x
+
+
+# =========================================================
 # 3. TRAINING FUNCTION
-# ==========================================
+# =========================================================
 
-def train_cnn_model(model, train_loader, num_epochs=10, lr=0.001):
-    """Runs the training loop with Backpropagation and Loss calculation."""
+def train_model(model, train_loader, num_epochs=10, lr=0.001):
+    """Executes the training loop with Backpropagation, Loss tracking, and Weight updates."""
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
     
-    print("\n--- STARTING CNN TRAINING ---")
+    print("\n--- STARTING MODEL TRAINING ---")
     for epoch in range(num_epochs):
         running_loss = 0.0
         
@@ -132,7 +158,7 @@ def train_cnn_model(model, train_loader, num_epochs=10, lr=0.001):
             # 1. Forward Pass
             outputs = model(batch_X)
             
-            # 2. Loss Calculation
+            # 2. Calculate Loss
             loss = criterion(outputs, batch_Y)
             
             # 3. Backpropagation
@@ -149,89 +175,96 @@ def train_cnn_model(model, train_loader, num_epochs=10, lr=0.001):
     return model
 
 
-# ==========================================
+# =========================================================
 # 4. INFERENCE FUNCTION
-# ==========================================
+# =========================================================
 
-def predict_protein_structure_cnn(protein_seq, trained_model, window_size=13, alphabet="ACDEFGHIKLMNPQRSTVWYX"):
-    """Takes a raw protein sequence string and predicts its secondary structure string."""
-    trained_model.eval()
+def predict_protein_structure(protein_seq, trained_model, window_size=13, alphabet="ACDEFGHIKLMNPQRSTVWYX"):
+    """Takes a full protein sequence and predicts its secondary structure string."""
+    trained_model.eval() # Turn off Dropout
     
     pad_length = window_size // 2
     padded_seq = ("X" * pad_length) + protein_seq + ("X" * pad_length)
     
     char_to_idx = {char: i for i, char in enumerate(alphabet)}
-    vocab_size = len(alphabet)
     protein_len = len(protein_seq)
     
-    # 1. Build flat matrix: [Protein_Length, 273]
-    X_flat = torch.zeros(protein_len, window_size * vocab_size)
+    # 1. Build 2D integer tensor: [Protein_Length, 13]
+    X_test_ints = torch.zeros(protein_len, window_size, dtype=torch.long)
     for i in range(protein_len):
         window = padded_seq[i : i + window_size]
         for char_idx, char in enumerate(window):
             if char in char_to_idx:
-                col_idx = (char_idx * vocab_size) + char_to_idx[char]
-                X_flat[i, col_idx] = 1.0
+                X_test_ints[i, char_idx] = char_to_idx[char]
                 
-    # 2. Reshape to CNN 3D Tensor: [Protein_Length, 21, 13]
-    X_inference = X_flat.view(-1, window_size, vocab_size).transpose(1, 2)
-    
-    # 3. Forward Pass
+    # 2. Run Forward Pass
     with torch.no_grad():
-        outputs = trained_model(X_inference)
+        outputs = trained_model(X_test_ints) # Shape: [Length, 3]
         predicted_indices = torch.argmax(outputs, dim=1)
         
-    # 4. Map integers back to letters
+    # 3. Translate integers back to letters
     int_to_shape = {0: 'C', 1: 'E', 2: 'H'}
     predicted_chars = [int_to_shape[int(idx.item())] for idx in predicted_indices]
     
     return "".join(predicted_chars)
 
 
-# ==========================================
+# =========================================================
 # 5. MAIN SCRIPT EXECUTION
-# ==========================================
+# =========================================================
 
 if __name__ == '__main__':
-    # Configuration
-    FILE_PATH = 'RS126.data.txt'  # <-- REPLACE WITH YOUR ACTUAL DATA FILE
+    # Configuration Hyperparameters
+    FILE_PATH = 'RS126.data.txt'  # <-- REPLACE WITH YOUR ACTUAL FILE NAME
     WINDOW_SIZE = 13
     ALPHABET = "ACDEFGHIKLMNPQRSTVWYX"
+    EMBED_DIM = 32
+    SEQUENCE_COUNT = 3  # Try changing this to 1, 3, or 5 to see how depth affects learning!
+    HIDDEN_DIM = 256
     BATCH_SIZE = 64
     EPOCHS = 10
     LR = 0.001
     
-    # Step 1: Ingest and Parse Data
+    # Step 1: Load and parse biological data
     sequences, structures = load_and_parse_data(FILE_PATH)
     
-    # Step 2: Slice Sliding Windows
+    # Step 2: Slice Sliding Windows (first 50 proteins for rapid training)
     X_data, Y_data = create_sliding_windows(sequences, structures, window_size=WINDOW_SIZE, limit=50)
     
-    # Step 3: Prepare PyTorch 3D Tensors
-    X_cnn, Y_tensor = prepare_cnn_tensors(X_data, Y_data, window_size=WINDOW_SIZE, alphabet=ALPHABET)
+    # Step 3: Prepare Integer Tensors for Embedding Layer
+    X_ints, Y_tensor = prepare_embedding_tensors(X_data, Y_data, window_size=WINDOW_SIZE, alphabet=ALPHABET)
     
-    # Step 4: Create DataLoader for mini-batches
-    dataset = TensorDataset(X_cnn, Y_tensor)
+    # Step 4: Setup DataLoader for Mini-Batching
+    dataset = TensorDataset(X_ints, Y_tensor)
     train_loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
     
-    # Step 5: Initialize Model
-    model = MiniFoldCNN(vocab_size=len(ALPHABET), window_size=WINDOW_SIZE, output_size=3)
+    # Step 5: Initialize Dynamic MiniFold CNN Model
+    model = MiniFoldCNN(
+        vocab_size=len(ALPHABET),
+        input_channels=EMBED_DIM,
+        window_size=WINDOW_SIZE,
+        output_size=3,
+        SequenceCount=SEQUENCE_COUNT,
+        hidden_dim=HIDDEN_DIM
+    )
     
-    # Step 6: Train Model
-    trained_model = train_cnn_model(model, train_loader, num_epochs=EPOCHS, lr=LR)
+    print("Model initialized successfully! Model architecture summary:")
+    print(model)
     
-    # Step 7: Test Inference
+    # Step 6: Train the Model
+    trained_model = train_model(model, train_loader, num_epochs=EPOCHS, lr=LR)
+    
+    # Step 7: Run Inference Test
     test_input = "FVNQHLCGSHLVEALYLVCGERGFFYTPKA"
     expected_output = "CCCCCCCCHHHHHHHHHHHHHHCECCCCCC"
     
-    prediction = predict_protein_structure_cnn(test_input, trained_model, window_size=WINDOW_SIZE, alphabet=ALPHABET)
+    prediction = predict_protein_structure(test_input, trained_model, window_size=WINDOW_SIZE, alphabet=ALPHABET)
     
-    # Calculate simple accuracy on the test sequence
     matches = sum(1 for p, e in zip(prediction, expected_output) if p == e)
     accuracy = (matches / len(expected_output)) * 100
     
-    print("--- CNN INFERENCE TEST ---")
+    print("--- INFERENCE TEST RESULTS ---")
     print(f"Input:    {test_input}")
     print(f"Expected: {expected_output}")
-    print(f"CNN Pred: {prediction}")
+    print(f"Pred:     {prediction}")
     print(f"Accuracy: {accuracy:.1f}% ({matches}/{len(expected_output)} correct amino acids)")
