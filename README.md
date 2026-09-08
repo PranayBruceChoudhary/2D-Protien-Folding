@@ -12,7 +12,9 @@ Below is a comparison of all model implementation iterations developed in this r
 | :--- | :---: | :--- |
 | **1. Multi_CNN**<br>*(Improved Multi-Layer)* | <img src="images/multi_cnn_code.png" width="420" alt="Improved Multi-Layer CNN Code"> | <pre><code>Input:    SIPPEVKFNKPFVFLMIEQNTKSPLFMGKVVNPTQK<br>Expected: CCCCEEECCCCEEEEEEECCCCCEEEEEEECCCCCC<br>Pred:     CCECHCCCHHHEEHHHCCHHHHCECCCCCH<br>Accuracy: 77.78%</code></pre> |
 | **2. CNN**<br>*(Baseline 2-Layer)* | <img src="images/baseline_cnn_code.png" width="420" alt="Baseline CNN Code"> | <pre><code>Input:    FVNQHLCGSHLVEALYLVCGERGFFYTPKA<br>Expected: CCCCCCCCHHHHHHHHHHHHHHCECCCCCC<br>Pred:     CCEEEECHHHHHHEEEEEECCCCCCCCCCC<br>Accuracy: 50.0% (15/30 correct amino acids)</code></pre> |
-| **3. Linear**<br>*(Baseline FFNN)* | <img src="images/linear_code.png" width="420" alt="Linear Model Code"> | <pre><code>Input:    FVNQHLCGSHLVEALYLVCGERGFFYTPKA<br>Expected: CCCCCCCCHHHHHHHHHHHHHHCECCCCCC<br>Predicted:CEEEECCCCEECHEEEEEHCCCCEEECCCC<br>Accuracy: 40.0% (12/30 correct amino acids)</code></pre> |
+| **3. Linear**<br>*(Baseline FFNN)* | <img src="images/linear_code.png" width="420" alt="Linear Model Code"> | <pre><code>Input:    FVNQHLCGSHLVEALYLVCGERGFFYTPKA<br>Expected: CCCCCCCCHHHHHHHHHHHHHHCECCCCCC
+<br>Predicted:CEEEECCCCEECHEEEEEHCCCCEEECCCC
+<br>Accuracy: 40.0% (12/30 correct amino acids)</code></pre> |
 | **4. Transformers**<br>*(Roadmap)* | *Planned Self-Attention Architecture* | <pre><code>Status:   In Development / Planned Architecture<br>Target:   Self-Attention & Positional Embeddings<br>Accuracy: Roadmap Architecture</code></pre> |
 
 ---
