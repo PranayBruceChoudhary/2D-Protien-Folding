@@ -6,14 +6,14 @@ An AI/Deep Learning repository for predicting secondary protein structures (**Co
 
 ## 📊 Model Implementation Comparison Summary
 
-Below is a comparison of all implementation iterations developed in this repository, showing their architecture setup and benchmark prediction performance:
+Below is a comparison of all model implementation iterations developed in this repository:
 
-| Implementation Model | Model Architecture Summary | Code / Notebook Reference | Benchmark Results |
-| :--- | :--- | :--- | :--- |
-| **1. Multi_CNN**<br>*(Advanced Multi-Layer)* | `nn.Embedding` (21 → 32) → `Conv1D` (32 → 128) → `Flatten` → Linear Bridge (1664 → 256) → Dynamic `LearningBlock` stack (`Linear` → `BatchNorm1d` → `ReLU` → `Dropout`) $\times N$ → `Linear Head` (256 → 3) | [`minifold_CNN.py`](file:///c:/Users/mannu/2D%20Protien%20Folding/minifold_CNN.py)<br>[`Minifold_MultiLayerCNN.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_MultiLayerCNN.ipynb) | **Accuracy: 77.78%**<br>`Input: SIPPEVKFNKPFVFLMIEQNTKSPLFMGKVVNPTQK`<br>`Pred:  CCECHCCCHHHEEHHHCCHHHHCECCCCCH` |
-| **2. CNN**<br>*(Baseline 2-Layer)* | 3D One-Hot Grid (21 $\times$ 13) → `Conv1D` (21 → 64) → `ReLU` → `Dropout` → `Conv1D` (64 → 32) → `Flatten` → `Linear Head` (416 → 3) | [`Minifold_baselineCNN.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_baselineCNN.ipynb) | **Accuracy: 50.0% (15/30)**<br>`Input: FVNQHLCGSHLVEALYLVCGERGFFYTPKA`<br>`Pred:  CCEEEECHHHHHHEEEEEECCCCCCCCCCC` |
-| **3. Linear**<br>*(Baseline FFNN)* | Flattened One-Hot Vector (273) → `Linear` (273 → 128) → `ReLU` → `Dropout` → `Linear Head` (128 → 3) | [`minifold_linear.py`](file:///c:/Users/mannu/2D%20Protien%20Folding/minifold_linear.py)<br>[`Minifold_Linear.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_Linear.ipynb) | **Accuracy: 40.0% (12/30)**<br>`Input: FVNQHLCGSHLVEALYLVCGERGFFYTPKA`<br>`Pred:  CEEEECCCCEECHEEEEEHCCCCEEECCCC` |
-| **4. Transformers**<br>*(Planned Roadmap)* | Self-Attention Encoder Blocks + Positional Embeddings + Multi-Head Attention Heads | *Future Work* | **Accuracy: In Development**<br>`Status: Planned Architecture` |
+| Implementation Model | Architecture | Feature Pipeline | Accuracy | Code & Notebook Reference |
+| :--- | :--- | :--- | :---: | :--- |
+| **1. Multi_CNN** *(Advanced)* | 1D Conv + Dynamic Blocks | `nn.Embedding` (21 → 32) → `Conv1d` (32 → 128) → `LearningBlock` Stack $\times N$ | **77.78%** | [`minifold_CNN.py`](file:///c:/Users/mannu/2D%20Protien%20Folding/minifold_CNN.py)<br>[`Minifold_MultiLayerCNN.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_MultiLayerCNN.ipynb) |
+| **2. CNN** *(Baseline)* | 2-Layer 1D Convolutional | 3D One-Hot Grid (21 × 13) → `Conv1d` (64 → 32) → `Linear` | **50.0%** | [`Minifold_baselineCNN.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_baselineCNN.ipynb) |
+| **3. Linear** *(Baseline)* | Feed-Forward Neural Net | Flattened One-Hot Vector (273) → `Linear` (273 → 128 → 3) | **40.0%** | [`minifold_linear.py`](file:///c:/Users/mannu/2D%20Protien%20Folding/minifold_linear.py)<br>[`Minifold_Linear.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_Linear.ipynb) |
+| **4. Transformers** *(Roadmap)* | Multi-Head Self-Attention | Token + Positional Embeddings + Self-Attention Encoder | *Planned* | *Future Work* |
 
 ---
 
@@ -48,7 +48,7 @@ Amino acid sequences are tokenized using a 21-character vocabulary consisting of
 `Alphabet = "ACDEFGHIKLMNPQRSTVWYX" (21 tokens)`
 
 ### 2. Sliding Window Extraction
-We slice sequences using a **sliding window of size $W = 13$**:
+We slice sequences using a **sliding window of size W = 13**:
 - **Padding**: `pad_length = 13 // 2 = 6` characters of `'X'` prepended and appended to each protein sequence.
 - **Window Extraction**: For each residue position, a 13-character window centered at that position is extracted.
 - **Target Assignment**: The target label $Y$ is the secondary structure character (`C`, `E`, or `H`) of the central residue.
@@ -68,6 +68,8 @@ We slice sequences using a **sliding window of size $W = 13$**:
 > Implemented in [`minifold_CNN.py`](file:///c:/Users/mannu/2D%20Protien%20Folding/minifold_CNN.py) and [`Minifold_MultiLayerCNN.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_MultiLayerCNN.ipynb). This model introduces dense feature embeddings, 1D spatial feature extraction, projection bridges, and configurable, modular `LearningBlock` stacks.
 
 ### Model Architecture
+
+![Multi-Layer CNN Architecture](images/multi_cnn_architecture.png)
 
 ```python
 class LearningBlock(nn.Module):
@@ -192,6 +194,8 @@ Accuracy:         50.0% (15/30 correct amino acids)
 > Implemented in [`minifold_linear.py`](file:///c:/Users/mannu/2D%20Protien%20Folding/minifold_linear.py) and [`Minifold_Linear.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_Linear.ipynb). Uses a flattened 1D one-hot vector representation (`13 * 21 = 273`) passed into dense linear layers.
 
 ### Model Architecture
+
+![Baseline Linear Model Architecture](images/linear_architecture.png)
 
 ```python
 class MiniFoldFFNN(nn.Module):
