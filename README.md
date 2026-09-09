@@ -10,9 +10,9 @@ Below is a comparison of all model implementation iterations developed in this r
 
 | Implementation Model | Layer Structure & Architecture Diagram | Benchmark Inference Test Output |
 | :--- | :---: | :--- |
-| **1. Multi_CNN**<br>*(Improved Multi-Layer)* | <img src="images/multi_cnn_diagram.png" width="550" alt="Improved Multi-Layer CNN Architecture Diagram"> | <code style="color: #71ff00;"><b>Accuracy:</b> 77.78%</code> |
-| **2. CNN**<br>*(Baseline 2-Layer)* | <img src="images/baseline_cnn_diagram.png" width="550" alt="Baseline CNN Architecture Diagram"> | <code style="color: #ffff00;"><b>Accuracy:</b> 50.0%</code> |
-| **3. Linear**<br>*(Baseline FFNN)* | <img src="images/linear_diagram.png" width="550" alt="Baseline Linear Model Architecture Diagram"> | <code style="color: #ffcc00;"><b>Accuracy:</b> 40.0%</code> |
+| **1. Multi_CNN**<br>*(Improved Multi-Layer)* | <img src="images/multi_cnn_diagram.png" width="550" alt="Improved Multi-Layer CNN Architecture Diagram"> | $\color{#71FF00}{\mathbf{Accuracy:\ 77.78\%}}$ |
+| **2. CNN**<br>*(Baseline 2-Layer)* | <img src="images/baseline_cnn_diagram.png" width="550" alt="Baseline CNN Architecture Diagram"> | $\color{#FFFF00}{\mathbf{Accuracy:\ 50.0\%}}$ |
+| **3. Linear**<br>*(Baseline FFNN)* | <img src="images/linear_diagram.png" width="550" alt="Baseline Linear Model Architecture Diagram"> | $\color{#FFCC00}{\mathbf{Accuracy:\ 40.0\%}}$ |
 | **4. Transformers**<br>*(Roadmap)* | *Planned Self-Attention Architecture* | <code><b>Status:</b>   In Development / Planned Architecture</code><br><code><b>Target:</b>   Self-Attention & Positional Embeddings</code><br><code><b>Accuracy:</b> Roadmap Architecture</code> |
 
 ---
