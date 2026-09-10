@@ -10,7 +10,7 @@ Below is a comparison of all model implementation iterations developed in this r
 
 | Implementation Model | Layer Structure & Architecture Diagram | Benchmark Inference Test Output |
 | :--- | :---: | :--- |
-| **1. Transformers**<br>*(Self-Attention Model)* | <img src="images/transformer_diagram.png" width="550" alt="Transformer Architecture Diagram"> | $\color{#FFD700}{\mathbf{Accuracy:\ 91.7\%🥇}}$ |
+| **1. Transformers**<br>*(Self-Attention Model)* | <img src="images/transformer_diagram.png" width="550" alt="Transformer Architecture Diagram"> | $\color{#FFD700}{\mathbf{Accuracy:\ 91.7\%🥇}🥇}$ |
 | **2. Multi_CNN**<br>*(Improved Multi-Layer)* | <img src="images/multi_cnn_diagram.png" width="550" alt="Improved Multi-Layer CNN Architecture Diagram"> | $\color{#71FF00}{\mathbf{Accuracy:\ 77.78\%}}$ |
 | **3. CNN**<br>*(Baseline 2-Layer)* | <img src="images/baseline_cnn_diagram.png" width="550" alt="Baseline CNN Architecture Diagram"> | $\color{#FFFF00}{\mathbf{Accuracy:\ 50.0\%}}$ |
 | **4. Linear**<br>*(Baseline FFNN)* | <img src="images/linear_diagram.png" width="550" alt="Baseline Linear Model Architecture Diagram"> | $\color{#FF4D4D}{\mathbf{Accuracy:\ 40.0\%}}$ |
