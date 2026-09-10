@@ -63,7 +63,7 @@ We slice sequences using a **sliding window of size W = 13**:
 
 ---
 
-## 👑 1. State-of-the-Art Transformer Model (`MiniFoldTransformer` with Self-Attention)
+## 👑 1. Transformer Model (`MiniFoldTransformer` with Self-Attention)
 
 > [!IMPORTANT]
 > **Status**: **Highest Accuracy Architecture (91.7%)**  
