@@ -10,10 +10,10 @@ Below is a comparison of all model implementation iterations developed in this r
 
 | Implementation Model | Layer Structure & Architecture Diagram | Benchmark Inference Test Output |
 | :--- | :---: | :--- |
-| **1. Multi_CNN**<br>*(Improved Multi-Layer)* | <img src="images/multi_cnn_diagram.png" width="550" alt="Improved Multi-Layer CNN Architecture Diagram"> | $\color{#71FF00}{\mathbf{Accuracy:\ 77.78\%}}$ |
-| **2. CNN**<br>*(Baseline 2-Layer)* | <img src="images/baseline_cnn_diagram.png" width="550" alt="Baseline CNN Architecture Diagram"> | $\color{#FFFF00}{\mathbf{Accuracy:\ 50.0\%}}$ |
-| **3. Linear**<br>*(Baseline FFNN)* | <img src="images/linear_diagram.png" width="550" alt="Baseline Linear Model Architecture Diagram"> | $\color{#FFCC00}{\mathbf{Accuracy:\ 40.0\%}}$ |
-| **4. Transformers**<br>*(Roadmap)* | *Planned Self-Attention Architecture* | <code><b>Status:</b>   In Development / Planned Architecture</code><br><code><b>Target:</b>   Self-Attention & Positional Embeddings</code><br><code><b>Accuracy:</b> Roadmap Architecture</code> |
+| **1. Transformers**<br>*(Self-Attention Model)* | <img src="images/transformer_diagram.png" width="550" alt="Transformer Architecture Diagram"> | $\color{#FFD700}{\mathbf{Accuracy:\ 91.7\%}}$ |
+| **2. Multi_CNN**<br>*(Improved Multi-Layer)* | <img src="images/multi_cnn_diagram.png" width="550" alt="Improved Multi-Layer CNN Architecture Diagram"> | $\color{#71FF00}{\mathbf{Accuracy:\ 77.78\%}}$ |
+| **3. CNN**<br>*(Baseline 2-Layer)* | <img src="images/baseline_cnn_diagram.png" width="550" alt="Baseline CNN Architecture Diagram"> | $\color{#FFFF00}{\mathbf{Accuracy:\ 50.0\%}}$ |
+| **4. Linear**<br>*(Baseline FFNN)* | <img src="images/linear_diagram.png" width="550" alt="Baseline Linear Model Architecture Diagram"> | $\color{#FF4D4D}{\mathbf{Accuracy:\ 40.0\%}}$ |
 
 ---
 
@@ -29,8 +29,10 @@ This repository implements data preprocessing pipelines and deep learning archit
 
 | File | Description |
 | :--- | :--- |
-| 🚀 [`minifold_CNN.py`](file:///c:/Users/mannu/2D%20Protien%20Folding/minifold_CNN.py) | **Primary Advanced Model**: PyTorch script implementing the Advanced Multi-Layer CNN with `nn.Embedding`, `nn.Sequential`, dynamic `LearningBlock` stacks, `BatchNorm1d`, `ReLU`, and `Dropout`. |
-| 🚀 [`Minifold_MultiLayerCNN.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_MultiLayerCNN.ipynb) | **Primary Advanced Notebook**: Interactive notebook for training and tuning the Advanced Multi-Layer CNN architecture. |
+| 👑 [`MiniFold_transformers.py`](file:///c:/Users/mannu/2D%20Protien%20Folding/MiniFold_transformers.py) | **State-of-the-Art Transformer Model**: PyTorch script implementing the Transformer Encoder architecture with token embeddings, positional embeddings, multi-head self-attention, and central residue classification. |
+| 👑 [`Minifold_tranformers.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_tranformers.ipynb) | **State-of-the-Art Transformer Notebook**: Interactive notebook for training and evaluating the Transformer architecture. |
+| 🚀 [`minifold_CNN.py`](file:///c:/Users/mannu/2D%20Protien%20Folding/minifold_CNN.py) | **Advanced Multi-Layer CNN Model**: PyTorch script implementing the Advanced Multi-Layer CNN with `nn.Embedding`, `nn.Sequential`, dynamic `LearningBlock` stacks, `BatchNorm1d`, `ReLU`, and `Dropout`. |
+| 🚀 [`Minifold_MultiLayerCNN.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_MultiLayerCNN.ipynb) | **Advanced Multi-Layer CNN Notebook**: Interactive notebook for training and tuning the Advanced Multi-Layer CNN architecture. |
 | 🔹 [`Minifold_baselineCNN.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_baselineCNN.ipynb) | **Baseline CNN Notebook**: Notebook implementing the 2-layer Convolutional model (`MiniFoldCNN`) with 3D one-hot grid inputs. |
 | 🔹 [`minifold_linear.py`](file:///c:/Users/mannu/2D%20Protien%20Folding/minifold_linear.py) | **Baseline Linear Script**: PyTorch script implementing the baseline fully-connected linear network (`MiniFoldFFNN`). |
 | 🔹 [`Minifold_Linear.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_Linear.ipynb) | **Baseline Linear Notebook**: Interactive notebook for the baseline linear model. |
@@ -61,10 +63,76 @@ We slice sequences using a **sliding window of size W = 13**:
 
 ---
 
-## 🚀 1. Advanced Multi-Layer CNN (`MiniFoldCNN` with Dynamic Learning Blocks)
+## 👑 1. State-of-the-Art Transformer Model (`MiniFoldTransformer` with Self-Attention)
 
 > [!IMPORTANT]
-> **Status**: **Latest & Primary Architecture**  
+> **Status**: **Highest Accuracy Architecture (91.7%)**  
+> Implemented in [`MiniFold_transformers.py`](file:///c:/Users/mannu/2D%20Protien%20Folding/MiniFold_transformers.py) and [`Minifold_tranformers.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_tranformers.ipynb). Combines biological token embeddings, learned positional embeddings, multi-head self-attention (`TransformerEncoderLayer`), and central token classification.
+
+### Model Architecture
+
+```python
+class MiniFoldTransformer(nn.Module):
+    """
+    Transformer-based secondary structure predictor.
+    Uses Token Embeddings + Positional Embeddings + Multi-Head Self-Attention
+    to predict the secondary structure of the middle amino acid.
+    """
+    def __init__(self, vocab_size=21, window_size=13, d_model=64, nhead=4, num_layers=2, output_size=3, dropout=0.3):
+        super(MiniFoldTransformer, self).__init__()
+        
+        self.window_size = window_size
+        self.d_model = d_model
+        
+        # 1. Biological Token Embedding & Positional Embedding
+        self.embedding = nn.Embedding(num_embeddings=vocab_size, embedding_dim=d_model)
+        self.pos_embedding = nn.Embedding(num_embeddings=window_size, embedding_dim=d_model)
+        
+        # 2. Transformer Encoder (Multi-Head Self-Attention + Feed Forward)
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=d_model,
+            nhead=nhead,
+            dim_feedforward=d_model * 2,  # 128 internal hidden neurons
+            dropout=dropout,
+            activation='relu',
+            batch_first=True
+        )
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+        
+        # 3. Classification Head (Evaluates central token -> C, E, or H)
+        self.fc = nn.Linear(d_model, output_size)
+        self.dropout = nn.Dropout(dropout)
+        
+    def forward(self, x):
+        batch_size, seq_len = x.shape
+        token_embeddings = self.embedding(x)
+        positions = torch.arange(0, seq_len, device=x.device).unsqueeze(0).repeat(batch_size, 1)
+        pos_embeddings = self.pos_embedding(positions)
+        
+        x = self.dropout(token_embeddings + pos_embeddings)
+        x = self.transformer_encoder(x)
+        
+        middle_idx = self.window_size // 2  # Index 6
+        middle_token = x[:, middle_idx, :]
+        return self.fc(middle_token)
+```
+
+### 📊 Benchmark Results (Transformer Model)
+
+```text
+--- TRANSFORMER INFERENCE TEST RESULTS ---
+Input Sequence:   SIPPEVKFNKPFVFLMIEQNTKSPLFMGKVVNPTQK
+Expected Ground:  CCCCEEECCCCEEEEEEECCCCCEEEEEEECCCCCC
+Transformer Pred: CCCCCEECCCCEEEEEEHCCCCCCEEEEEECCCCCC
+Accuracy:         91.7% (33/36 correct amino acids)
+```
+
+---
+
+## 🚀 2. Advanced Multi-Layer CNN (`MiniFoldCNN` with Dynamic Learning Blocks)
+
+> [!NOTE]
+> **Status**: **Multi-Layer Convolutional Model**  
 > Implemented in [`minifold_CNN.py`](file:///c:/Users/mannu/2D%20Protien%20Folding/minifold_CNN.py) and [`Minifold_MultiLayerCNN.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_MultiLayerCNN.ipynb). This model introduces dense feature embeddings, 1D spatial feature extraction, projection bridges, and configurable, modular `LearningBlock` stacks.
 
 ### Model Architecture
@@ -144,7 +212,7 @@ Accuracy: 77.78%
 
 ---
 
-## 🔹 2. Baseline CNN Model (`MiniFoldCNN` 2-Layer Grid Model)
+## 🔹 3. Baseline CNN Model (`MiniFoldCNN` 2-Layer Grid Model)
 
 > [!NOTE]
 > **Status**: **Baseline Convolutional Model**  
@@ -185,7 +253,7 @@ Accuracy:         50.0% (15/30 correct amino acids)
 
 ---
 
-## 🔹 3. Baseline Linear Layer Model (`MiniFoldFFNN`)
+## 🔹 4. Baseline Linear Layer Model (`MiniFoldFFNN`)
 
 > [!NOTE]
 > **Status**: **Foundational Baseline Model**  
@@ -222,12 +290,6 @@ Accuracy: 40.0% (12/30 correct amino acids)
 
 ---
 
-## 🔮 4. Future Work: Transformer Architecture
-
-> 🚧 **Roadmap Feature**: Future iterations will explore multi-head self-attention Transformer Encoders (inspired by ESM & AlphaFold) to capture long-range contextual dependencies across whole protein chains beyond local 13-residue windows.
-
----
-
 ## 🛠️ Installation & Execution
 
 ### Prerequisites
@@ -236,7 +298,11 @@ pip install torch pandas numpy
 ```
 
 ### Execution Commands
-- **Run Advanced Multi-Layer CNN (Recommended)**:
+- **Run Transformer Model (State-of-the-Art - 91.7% Accuracy)**:
+  ```bash
+  python MiniFold_transformers.py
+  ```
+- **Run Advanced Multi-Layer CNN**:
   ```bash
   python minifold_CNN.py
   ```
@@ -244,4 +310,4 @@ pip install torch pandas numpy
   ```bash
   python minifold_linear.py
   ```
-- **Jupyter Notebooks**: Launch [`Minifold_MultiLayerCNN.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_MultiLayerCNN.ipynb), [`Minifold_baselineCNN.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_baselineCNN.ipynb), or [`Minifold_Linear.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_Linear.ipynb).
+- **Jupyter Notebooks**: Launch [`Minifold_tranformers.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_tranformers.ipynb), [`Minifold_MultiLayerCNN.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_MultiLayerCNN.ipynb), [`Minifold_baselineCNN.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_baselineCNN.ipynb), or [`Minifold_Linear.ipynb`](file:///c:/Users/mannu/2D%20Protien%20Folding/Minifold_Linear.ipynb).
